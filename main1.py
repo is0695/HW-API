@@ -1,5 +1,7 @@
+import statistics
 class Student:
     def __init__(self, name, surname, gender):
+        self.average_for_all = []
         self.name = name
         self.surname = surname
         self.gender = gender
@@ -21,14 +23,20 @@ class Student:
         courses_in_progress_str = ', '.join(self.courses_in_progress)
         finished_courses_str = ', '.join(self.finished_courses)
         return f'Имя: {self.name}\nФамилия: {self.surname}\n' \
-               f'Средняя оценка за домашние задания: {self.sr_grade()}\n' \
+               f'Средняя оценка за домашние задания: {self.sr_grade_ST()}\n' \
                f'Курсы в процессе изучения: {courses_in_progress_str}\n' \
                f'Завершенные курсы: {finished_courses_str}\n'
-    def sr_grade(self):
+    def sr_grade_ST(self):
         list_grade = []
         for x in self.grades.values():
             list_grade += x
         return sum(list_grade)/len(list_grade)
+    def __lt__(self, other):
+        if not isinstance(other, Student):
+            print('Not a Student')
+            return
+        return self.sr_grade_ST() < other.sr_grade_ST()
+
 
 
 class Mentor:
@@ -50,6 +58,16 @@ class Lecturer(Mentor):
         return f'Имя: {self.name}\nФамилия: {self.surname}\n' \
                f'Средняя оценка за лекции: {sum(list_grade) / len(list_grade)}\n'
 
+    def sr_grade_L(self):
+        list_grade = []
+        for x in self.grades.values():
+            list_grade += x
+        return sum(list_grade) / len(list_grade)
+    def __lt__(self, other):
+        if not isinstance(other, Lecturer):
+            print('Not a Lecturer')
+            return
+        return self.sr_grade_L() < other.sr_grade_L()
 
 class Reviewer(Mentor):
     def rate_hw(self, student, course, grade):
@@ -82,15 +100,19 @@ best_lecturer_2 = Lecturer('Саша', 'Волков')
 best_lecturer_2.courses_attached += ['Python']
 best_lecturer_3 = Lecturer('Юля', 'Новикова')
 best_lecturer_3.courses_attached += ['Python']
-cool_mentor_1.rate_hw(best_student_1, 'Python', 8)
+cool_mentor_1.rate_hw(best_student_1, 'Python', 15)
 cool_mentor_1.rate_hw(best_student_1, 'Python', 9)
-cool_mentor_2.rate_hw(best_student_2, 'Python', 10)
-cool_mentor_1.rate_hw(best_student_2, 'Python', 7)
+cool_mentor_2.rate_hw(best_student_2, 'Python', 20)
+cool_mentor_1.rate_hw(best_student_2, 'Python', 20)
 cool_mentor_2.rate_hw(best_student_2, 'Python', 10)
 cool_mentor_1.rate_hw(best_student_3, 'Python', 9)
 cool_mentor_2.rate_hw(best_student_3, 'Python', 8)
 best_student_1.rate_st(best_lecturer_1, 'Python', 8)
 best_student_2.rate_st(best_lecturer_1, 'Python', 10)
+best_student_1.rate_st(best_lecturer_2, 'Python', 9)
+best_student_2.rate_st(best_lecturer_2, 'Python', 7)
+best_student_1.rate_st(best_lecturer_3, 'Python', 10)
+best_student_2.rate_st(best_lecturer_3, 'Python', 10)
 best_student_2.finished_courses += ['Python']
 best_student_1.finished_courses += ['Python']
 best_student_3.finished_courses += ['Python']
@@ -132,10 +154,19 @@ def lecturer_rating(lectureres, course_name):
                     sum_all += i
                 count_all += len(y)
     average_for_all = sum_all / count_all
+    print(average_for_all)
     return average_for_all
 
 
 
 print(f"Средняя оценка для всех студентов по курсу {'Python'}: {student_rating(students, 'Python')}")
 print(f"Средняя оценка для всех лекторов по курсу {'Python'}: {lecturer_rating(lectureres, 'Python')}")
+print(f'Результат сравнения студентов (по средним оценкам за ДЗ): '
+      f'{best_student_1.name} {best_student_1.surname} < {best_student_2.name} {best_student_2.surname} = {best_student_1 > best_student_2}')
+print(f'Результат сравнения лекторов (по средним оценкам за лекции): '
+      f'{best_lecturer_1.name} {best_lecturer_1.surname} < {best_lecturer_2.name} {best_lecturer_2.surname} = {best_lecturer_1 > best_lecturer_2}')
+print(best_student_1 > best_student_2)
+print(best_student_1 < best_student_2)
+print(best_lecturer_1 > best_lecturer_2)
+print(best_lecturer_1 < best_lecturer_2)
 
